@@ -1,0 +1,15 @@
+services:
+  my-hrm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Rewrite /api/backend → URL này được bake lúc build; trong container localhost ≠ máy host
+      args:
+        API_URL: ${DOCKER_API_URL:-http://host.docker.internal:3086}
+        PORT: ${PORT}
+    ports:
+      - "3200:3200"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      PORT: ${PORT}

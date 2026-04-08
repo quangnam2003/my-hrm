@@ -1,0 +1,45 @@
+services:
+  my-hrm-be:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
+    ports:
+      - "3086:3086"
+    environment:
+      PORT: ${PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@my-hrm-be-db:5432/${POSTGRES_DB}
+    command: ["sh", "-c", "npx prisma migrate deploy && npm run seed && npm run start"]
+    depends_on:
+      my-hrm-be-db:
+        condition: service_healthy
+    networks:
+      - hrm-network
+  my-hrm-be-db:
+    image: postgres:16
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    ports:
+      - "5433:5432"
+    volumes:
+      - my-hrm-be-db-data:/var/lib/postgresql/data
+    networks:
+      - hrm-network
+volumes:
+  my-hrm-be-db-data:
+    driver: local
+networks:
+  hrm-network:
+    driver: bridge

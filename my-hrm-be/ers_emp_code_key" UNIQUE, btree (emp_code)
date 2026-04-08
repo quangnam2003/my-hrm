@@ -1,0 +1,27 @@
+                                  Table "public.users"
+   Column   |              Type              | Collation | Nullable |      Default       
+------------+--------------------------------+-----------+----------+--------------------
+ id         | text                           |           | not null | 
+ email      | text                           |           | not null | 
+ password   | text                           |           | not null | 
+ role       | "Role"                         |           | not null | 'EMPLOYEE'::"Role"
+ name       | text                           |           | not null | 
+ phone      | text                           |           |          | 
+ created_at | timestamp(3) without time zone |           | not null | CURRENT_TIMESTAMP
+ creator_id | text                           |           |          | 
+ updated_at | timestamp(3) without time zone |           | not null | 
+ emp_code   | character varying(10)          |           |          | 
+ is_active  | boolean                        |           | not null | true
+ status     | "EmployeeStatus"               |           |          | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_key" UNIQUE, btree (email)
+    "users_emp_code_key" UNIQUE, btree (emp_code)
+Foreign-key constraints:
+    "users_creator_id_fkey" FOREIGN KEY (creator_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL
+Referenced by:
+    TABLE "attendances" CONSTRAINT "attendances_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "leave_requests" CONSTRAINT "leave_requests_processed_by_id_fkey" FOREIGN KEY (processed_by_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "leave_requests" CONSTRAINT "leave_requests_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "users" CONSTRAINT "users_creator_id_fkey" FOREIGN KEY (creator_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL
+
